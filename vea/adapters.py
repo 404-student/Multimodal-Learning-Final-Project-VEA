@@ -295,14 +295,23 @@ class Qwen2_5VLAdapter(VisionAdapter):
 
     def input_size(self, image: Image.Image, processor) -> tuple[int, int]:
         image_processor = processor.image_processor
+        
+        size = getattr(image_processor, "size", None) or {}
+        min_pixels = size.get(
+            "shortest_edge", getattr(image_processor, "min_pixels", None)
+        )
+        max_pixels = size.get(
+            "longest_edge", getattr(image_processor, "max_pixels", None)
+        )
+        
         width, height = image.size
         patch_h, _ = self.patch_size(processor)
         return smart_resize(
             height,
             width,
             factor=patch_h,
-            min_pixels=image_processor.min_pixels,
-            max_pixels=image_processor.max_pixels,
+            min_pixels=min_pixels,
+            max_pixels=max_pixels,
         )
 
     def patch_size(self, processor) -> tuple[int, int]:
@@ -429,7 +438,7 @@ def get_adapter(processor) -> VisionAdapter:
     Raises:
         NotImplementedError: if no adapter handles this processor family.
     """
-    processor_class = processor.image_processor._processor_class
+    processor_class = type(processor).__name__
     for adapter in ADAPTERS:
         if processor_class in adapter.processor_classes:
             return adapter

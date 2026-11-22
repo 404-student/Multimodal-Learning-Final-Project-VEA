@@ -13,6 +13,7 @@ pillow>=10.0
 
 # Metrics
 qa-metrics>=0.2             # exact-match and token-F1 for VQA answers
+nltk>=3.8                   # undeclared dep of qa-metrics
 
 # Plotting and progress
 matplotlib>=3.7

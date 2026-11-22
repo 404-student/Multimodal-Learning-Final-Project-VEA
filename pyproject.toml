@@ -27,6 +27,7 @@ dependencies = [
     "pandas>=2.0",
     "pillow>=10.0",
     "qa-metrics>=0.2",
+    "nltk>=3.8",
     "matplotlib>=3.7",
     "tqdm>=4.65",
 ]

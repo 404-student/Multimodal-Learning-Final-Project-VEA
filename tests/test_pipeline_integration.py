@@ -64,7 +64,7 @@ class StubTokenizer:
         return [self.decode(seq, skip_special_tokens) for seq in sequences]
 
 
-class StubProcessor:
+class Qwen2_5_VLProcessor:
     """Emulates a ``Qwen2_5_VLProcessor`` closely enough for the pipeline."""
 
     image_token = StubTokenizer.image_token
@@ -72,7 +72,6 @@ class StubProcessor:
     def __init__(self):
         self.tokenizer = StubTokenizer()
         self.image_processor = SimpleNamespace(
-            _processor_class="Qwen2_5_VLProcessor",
             patch_size=14,
             merge_size=2,
             min_pixels=4 * 28 * 28,
@@ -124,7 +123,7 @@ class StubModel:
 
 @pytest.fixture
 def loaded() -> LoadedModel:
-    processor = StubProcessor()
+    processor = Qwen2_5_VLProcessor()
     model = StubModel()
     model._processor = processor
     return LoadedModel(
@@ -362,9 +361,8 @@ class TestUnsupportedFamily:
     def test_unknown_processor_gives_an_actionable_error(self, loaded):
         from vea.adapters import get_adapter
 
-        loaded.processor.image_processor._processor_class = "MysteryProcessor"
         with pytest.raises(NotImplementedError, match="no VisionAdapter"):
-            get_adapter(loaded.processor)
+            get_adapter(SimpleNamespace())
 
     def test_grid_mismatch_is_caught(self, loaded, sample):
         from vea.layout import build_layout
